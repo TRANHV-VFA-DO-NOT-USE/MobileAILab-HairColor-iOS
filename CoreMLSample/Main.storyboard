@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina5_5" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="CoreMLSample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yhJ-eS-1Ub" customClass="CameraPreviewView" customModule="CoreMLSample" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="414"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="yhJ-eS-1Ub" secondAttribute="height" multiplier="1:1" id="aaJ-yy-atx"/>
+                                </constraints>
+                            </view>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Jxg-8L-Fjc">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="414"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="Jxg-8L-Fjc" secondAttribute="height" multiplier="1:1" id="QAY-d5-tXV"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="yhJ-eS-1Ub" secondAttribute="trailing" id="28y-3l-Wbg"/>
+                            <constraint firstItem="yhJ-eS-1Ub" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="BJC-wR-L3O"/>
+                            <constraint firstItem="Jxg-8L-Fjc" firstAttribute="leading" secondItem="yhJ-eS-1Ub" secondAttribute="leading" id="CJK-UZ-hlQ"/>
+                            <constraint firstItem="yhJ-eS-1Ub" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="QYp-py-ZFf"/>
+                            <constraint firstItem="Jxg-8L-Fjc" firstAttribute="trailing" secondItem="yhJ-eS-1Ub" secondAttribute="trailing" id="UF7-FF-EUT"/>
+                            <constraint firstItem="Jxg-8L-Fjc" firstAttribute="top" secondItem="yhJ-eS-1Ub" secondAttribute="top" id="dw9-Wp-EiR"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="cameraPreview" destination="yhJ-eS-1Ub" id="16r-x2-WJ6"/>
+                        <outlet property="predictionView" destination="Jxg-8L-Fjc" id="3Zj-86-J13"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-252.17391304347828" y="35.054347826086961"/>
+        </scene>
+    </scenes>
+</document>
