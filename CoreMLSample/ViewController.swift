@@ -14,7 +14,8 @@ class ViewController: UIViewController {
         // Load the ML model through its generated class and create a Vision request for it.
         do {
             let model = try VNCoreMLModel(for: mu_224_050_best2().model)
-            let request = VNCoreMLRequest(model: model, completionHandler: self.handlePrediction)
+//            let request = VNCoreMLRequest(model: model, completionHandler: self.handlePrediction)
+            let request = VNCoreMLRequest(model: model)
             request.imageCropAndScaleOption = VNImageCropAndScaleOption.centerCrop
             return request
         } catch {
@@ -60,8 +61,8 @@ class ViewController: UIViewController {
         session.addInput(input)
         session.addOutput(output)
         
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        cameraPreview.addCaptureVideoPreviewLayer(previewLayer)
+//        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+//        cameraPreview.addCaptureVideoPreviewLayer(previewLayer)
         
         self.session = session
         session.startRunning()
@@ -114,10 +115,99 @@ extension ViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
         } catch {
             print(error)
         }
+        // each prediction is now attached to the request
+        // obtain model result
+        guard let observations = predictionRequest.results as? [VNCoreMLFeatureValueObservation] else {
+            fatalError("unexpected result type from VNCoreMLRequest")
+        }
+        
+        // convert to MLMultiArray and then convert to UIImage
+        var mask: UIImage = UIImage()
+        if let multiArray: MLMultiArray = observations[0].featureValue.multiArrayValue {
+            mask = maskToRGBA(maskArray: MultiArray<Double>(multiArray), rgba: (255, 255, 0, 100))!
+        }
+        
+        let image = mergeMaskAndBackground(mask: mask, background: pixelBuffer, size: 1080)!
+        
+        // Display images
+        DispatchQueue.main.async { [weak self] in
+            //                self?.cameraPreview.image = image
+            self?.predictionView.image = image
+        }
     }
+        
     
 }
 
+//func resizedCroppedImage(image: UIImage, newSize:CGSize) -> UIImage {
+//    var ratio: CGFloat = 0
+//    var delta: CGFloat = 0
+//    var offset = CGPoint.zero
+//    if image.size.width > image.size.height {
+//        ratio = newSize.width / image.size.width
+//        delta = (ratio * image.size.width) - (ratio * image.size.height)
+//        offset = CGPoint(x: delta / 2, y: 0)
+//    } else {
+//        ratio = newSize.width / image.size.height
+//        delta = (ratio * image.size.height) - (ratio * image.size.width)
+//        offset = CGPoint(x: 0, y: delta / 2)
+//    }
+//    let clipRect = CGRect(x: -offset.x, y: -offset.y, width: (ratio * image.size.width) + delta, height: (ratio * image.size.height) + delta)
+//    UIGraphicsBeginImageContextWithOptions(newSize, true, 0.0)
+//    UIRectClip(clipRect)
+//    image.draw(in: clipRect)
+//    let newImage = UIGraphicsGetImageFromCurrentImageContext()
+//    UIGraphicsEndImageContext()
+//    return newImage!
+//}
+
+func cropImageToSquare(image: UIImage) -> UIImage? {
+    var imageHeight = image.size.height
+    var imageWidth = image.size.width
+    
+    if imageHeight > imageWidth {
+        imageHeight = imageWidth
+    }
+    else {
+        imageWidth = imageHeight
+    }
+    
+    let size = CGSize(width: imageWidth, height: imageHeight)
+    
+    let refWidth : CGFloat = CGFloat(image.cgImage!.width)
+    let refHeight : CGFloat = CGFloat(image.cgImage!.height)
+    
+    let x = (refWidth - size.width) / 2
+    let y = (refHeight - size.height) / 2
+    
+    let cropRect = CGRect(x: x, y: y, width: size.height, height: size.width)
+    if let imageRef = image.cgImage!.cropping(to: cropRect) {
+        return UIImage(cgImage: imageRef, scale: 0, orientation: image.imageOrientation)
+    }
+    
+    return nil
+}
+    
+func mergeMaskAndBackground(mask: UIImage, background: CVPixelBuffer, size: Int) -> UIImage? {
+    // Merge two images
+    let sizeImage = CGSize(width: size, height: size)
+    UIGraphicsBeginImageContext(sizeImage)
+    
+    let areaSize = CGRect(x: 0, y: 0, width: sizeImage.width, height: sizeImage.height)
+    
+    // background
+    var background = UIImage(pixelBuffer: background)
+    background = cropImageToSquare(image: background!)
+    background?.draw(in: areaSize)
+    // mask
+    mask.draw(in: areaSize)
+    
+    let newImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()!
+    UIGraphicsEndImageContext()
+    return newImage
+}
+    
+    
 func maskToRGBA(maskArray: MultiArray<Double>,
                 rgba: (r: Double, g: Double, b: Double, a: Double)) -> UIImage? {
     let height = maskArray.shape[1]
